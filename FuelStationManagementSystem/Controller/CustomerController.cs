@@ -19,22 +19,57 @@ namespace FuelStationManagementSystem.Controllers
             _customerRepository = customerRepository;
         }
 
+        /// <summary>
+        /// Get All Customers
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("getall")]
-        public ActionResult GetAll()
+        public async Task<ActionResult> GetAll()
         {
-            return Ok(_customerRepository.GetAllAsync());
+            ResponseModel<IEnumerable<Customer>> response = new ResponseModel<IEnumerable<Customer>>();
+
+            response.Data = await _customerRepository.GetAllAsync();
+            response.Message = "Kayýtlar getirildi.";
+
+            return Ok(response);
         }
 
+        /// <summary>
+        /// Get Customer By TCKN
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("get/{tckn}")]
-        public ActionResult Get(string tckn)
+        public async Task<ActionResult> Get(string tckn)
         {
-            return Ok(_customerRepository.GetByConditionsAsync(x => x.TCKN.Equals(tckn)));
+            ResponseModel<Customer> response = new ResponseModel<Customer>();
+
+            response.Data = await _customerRepository.GetByIdAsync(tckn);
+            response.Message = "Kayýt getirildi.";
+
+            return Ok(response);
         }
 
+
+        /// <summary>
+        /// Save Customer
+        /// </summary>
+        /// <remarks>
+        /// **Sample request body:**
+        ///
+        ///     { 
+        ///        "tckn" : "25871117736",
+        ///        "namesurname" : "mertdmkrn37@gmail.com",
+        ///        "address": "Ýstanbul/Kaðýthane"
+        ///     }
+        ///
+        /// </remarks>
+        /// <returns></returns>
         [HttpPost("save")]
         public async Task<ActionResult> Save([FromBody]Customer customer)
         {
             ResponseModel<Customer> response = new ResponseModel<Customer>();
+            customer.Status = CustomerStatus.OnayBekliyor;
+
             var customerValidator = new CustomerValidator();
             var validationResult = customerValidator.Validate(customer);
 
@@ -50,9 +85,23 @@ namespace FuelStationManagementSystem.Controllers
             response.Data = customer;
             response.Message = "Müþteri baþarýlý bir þekilde eklendi.";
 
-            return Ok(customer);
+            return Ok(response);
         }
 
+
+        /// <summary>
+        /// Update Customer
+        /// </summary>
+        /// <remarks>
+        /// **Sample request body:**
+        ///
+        ///     { 
+        ///        "tckn" : "25871117736",
+        ///        "status": 1
+        ///     }
+        ///
+        /// </remarks>
+        /// <returns></returns>
         [HttpPut("update")]
         public async Task<ActionResult> Update([FromBody] Customer updateCustomer)
         {
@@ -61,8 +110,8 @@ namespace FuelStationManagementSystem.Controllers
             if(!Extensions.BeAValidStatus(updateCustomer.Status))
             {
                 response.HasError = true;
-                response.ValidationErrors.Add(new ValidationError("Status", "Geçersiz müþteri durumu tipi."));
-                response.Message = "Müþteri güncellenemedi.";
+                response.ValidationErrors.Add(new ValidationError("Status", "Geçersiz müþteri durumu."));
+                response.Message = "Müþteri silinemedi.";
                 return BadRequest(response);
             }
 
@@ -76,13 +125,47 @@ namespace FuelStationManagementSystem.Controllers
             }
 
             customer.NameSurname = updateCustomer.NameSurname.IsNull(customer.NameSurname);
+            customer.Address = updateCustomer.Address.IsNull(customer.Address);
             customer.Status = updateCustomer.Status;
 
             await _customerRepository.UpdateAsync(customer);
             response.Data = customer;
             response.Message = "Müþteri baþarýlý bir þekilde güncellendi.";
 
-            return Ok(customer);
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Delete Customer
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("delete/{tckn}")]
+        public async Task<ActionResult> Delete(string tckn)
+        {
+            ResponseModel<bool> response = new ResponseModel<bool>();
+
+            if (tckn.IsNullOrEmpty())
+            {
+                response.HasError = true;
+                response.ValidationErrors.Add(new ValidationError("tckn", "TC Kimlik numarasý girilmeli."));
+                response.Message = "Müþteri güncellenemedi.";
+                return BadRequest(response);
+            }
+
+            var customer = await _customerRepository.GetByIdAsync(tckn);
+
+            if (customer == null)
+            {
+                response.HasError = true;
+                response.Message = "Müþteri bulunamadý.";
+                return NotFound(response);
+            }
+
+            await _customerRepository.DeleteAsync(customer);
+            response.Data = true;
+            response.Message = "Müþteri baþarýlý bir þekilde silindi.";
+
+            return Ok(response);
         }
     }
 }

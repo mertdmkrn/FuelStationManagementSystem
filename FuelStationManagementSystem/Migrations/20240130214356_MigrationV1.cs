@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FuelStationManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class FuelStationMigrationV1 : Migration
+    public partial class MigrationV1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,9 +15,9 @@ namespace FuelStationManagementSystem.Migrations
                 name: "Customer",
                 columns: table => new
                 {
-                    TCKN = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
-                    NameSurname = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TCKN = table.Column<string>(type: "nvarchar(11)", maxLength:11, nullable: false),
+                    NameSurname = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -32,7 +32,7 @@ namespace FuelStationManagementSystem.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Amount = table.Column<double>(type: "float", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
-                    CustomerTCKN = table.Column<string>(type: "nvarchar(11)", nullable: false)
+                    CustomerTCKN = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,8 +41,7 @@ namespace FuelStationManagementSystem.Migrations
                         name: "FK_Balance_Customer_CustomerTCKN",
                         column: x => x.CustomerTCKN,
                         principalTable: "Customer",
-                        principalColumn: "TCKN",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "TCKN");
                 });
 
             migrationBuilder.CreateTable(
@@ -52,7 +51,7 @@ namespace FuelStationManagementSystem.Migrations
                     Plate = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     VehicleType = table.Column<int>(type: "int", nullable: false),
                     FuelType = table.Column<int>(type: "int", nullable: false),
-                    CustomerTCKN = table.Column<string>(type: "nvarchar(11)", nullable: false)
+                    CustomerTCKN = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -61,8 +60,7 @@ namespace FuelStationManagementSystem.Migrations
                         name: "FK_Vehicle_Customer_CustomerTCKN",
                         column: x => x.CustomerTCKN,
                         principalTable: "Customer",
-                        principalColumn: "TCKN",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "TCKN");
                 });
 
             migrationBuilder.CreateTable(
@@ -70,9 +68,9 @@ namespace FuelStationManagementSystem.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Amount = table.Column<double>(type: "float", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    VehiclePlate = table.Column<string>(type: "nvarchar(20)", nullable: false)
+                    VehiclePlate = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -81,8 +79,7 @@ namespace FuelStationManagementSystem.Migrations
                         name: "FK_FuelTransaction_Vehicle_VehiclePlate",
                         column: x => x.VehiclePlate,
                         principalTable: "Vehicle",
-                        principalColumn: "Plate",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Plate");
                 });
 
             migrationBuilder.CreateIndex(

@@ -21,7 +21,7 @@ namespace FuelStationManagementSystem.Repository.Concrete
 
         public async Task<IEnumerable<T>> GetByConditionsAsync(Func<T, bool> conditions)
         {
-            return await _dbSet.AsNoTracking().Where(conditions).AsQueryable().ToListAsync();
+            return await Task.FromResult(_dbSet.AsNoTracking().Where(conditions).AsEnumerable());
         }
 
         public async Task<T> GetByIdAsync(object id)

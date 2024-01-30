@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FuelStationManagementSystem.Migrations
 {
     [DbContext(typeof(FuelStationDbContext))]
-    [Migration("20240130121846_FuelStationMigrationV1")]
-    partial class FuelStationMigrationV1
+    [Migration("20240130214356_MigrationV1")]
+    partial class MigrationV1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,7 +35,7 @@ namespace FuelStationManagementSystem.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("CustomerTCKN")
-                        .IsRequired()
+                        .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
 
                     b.Property<int>("Type")
@@ -51,16 +51,13 @@ namespace FuelStationManagementSystem.Migrations
             modelBuilder.Entity("FuelStationManagementSystem.Models.Customer", b =>
                 {
                     b.Property<string>("TCKN")
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("NameSurname")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -78,14 +75,14 @@ namespace FuelStationManagementSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("VehiclePlate")
-                        .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
@@ -102,7 +99,7 @@ namespace FuelStationManagementSystem.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("CustomerTCKN")
-                        .IsRequired()
+                        .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
 
                     b.Property<int>("FuelType")
@@ -122,9 +119,7 @@ namespace FuelStationManagementSystem.Migrations
                 {
                     b.HasOne("FuelStationManagementSystem.Models.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerTCKN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerTCKN");
 
                     b.Navigation("Customer");
                 });
@@ -133,9 +128,7 @@ namespace FuelStationManagementSystem.Migrations
                 {
                     b.HasOne("FuelStationManagementSystem.Models.Vehicle", "Vehicle")
                         .WithMany()
-                        .HasForeignKey("VehiclePlate")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("VehiclePlate");
 
                     b.Navigation("Vehicle");
                 });
@@ -144,9 +137,7 @@ namespace FuelStationManagementSystem.Migrations
                 {
                     b.HasOne("FuelStationManagementSystem.Models.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerTCKN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerTCKN");
 
                     b.Navigation("Customer");
                 });

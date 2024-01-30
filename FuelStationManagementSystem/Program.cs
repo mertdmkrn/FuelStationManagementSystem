@@ -3,13 +3,13 @@ using FuelStationManagementSystem.Repository;
 using FuelStationManagementSystem.Repository.Abstract;
 using FuelStationManagementSystem.Repository.Concrete;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Formatting.Compact;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 string currentPath = Path.Combine(AppContext.BaseDirectory.Replace("bin\\Debug\\net8.0\\", ""));
-
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Logger(lc => lc
@@ -32,13 +32,13 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    var filePath = Path.Combine(currentPath + "FuelStationManagementSystem.xml");
-    c.IncludeXmlComments(filePath);
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 builder.Services.AddDbContext<FuelStationDbContext>(options =>
 {
-    options.UseSqlServer("Data Source=BTA20582\\SQLEXPRESS;Initial Catalog=FuelStationManagementSystemDB;Integrated Security=True;");
+    options.UseSqlServer("Data Source=localhost;Initial Catalog=FuelStationManagementSystemDB;Integrated Security=True;");
 });
 
 builder.Services.AddTransient<LoggingMiddleware>();
@@ -46,11 +46,13 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseStaticFiles();
 app.UseCors("corsapp");
 
 app.UseMiddleware<LoggingMiddleware>();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

@@ -1,7 +1,7 @@
 ﻿using FuelStationManagementSystem.Helpers;
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace FuelStationManagementSystem.Models
 {
@@ -9,16 +9,16 @@ namespace FuelStationManagementSystem.Models
     public class Vehicle
     {
         [Key]
-        [MinLength(5)]
         [MaxLength(20)]
         public string Plate { get; set; }
 
         public VehicleType VehicleType { get; set; }
         public FuelType FuelType { get; set; }
 
-        [Required]
+        [MaxLength(11)]
         public string? CustomerTCKN { get; set; }
 
-        public Customer Customer { get; set; }
+        [JsonIgnore]
+        public Customer? Customer { get; set; }
     }
 }

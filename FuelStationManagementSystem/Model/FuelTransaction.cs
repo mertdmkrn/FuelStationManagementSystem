@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace FuelStationManagementSystem.Models
 {
@@ -9,13 +10,14 @@ namespace FuelStationManagementSystem.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
-        [Required]
-        public decimal Amount { get; set; }
-        [Required]
+        public double Amount { get; set; }
+
         public DateTime TransactionDate { get; set; }
 
+        [MaxLength(20)]
         public string? VehiclePlate { get; set; }
 
-        public Vehicle Vehicle { get; set; }
+        [JsonIgnore]
+        public Vehicle? Vehicle { get; set; }
     }
 }

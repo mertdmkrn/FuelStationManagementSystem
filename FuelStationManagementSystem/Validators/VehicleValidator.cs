@@ -17,7 +17,7 @@ namespace FuelStationManagementSystem.Validators
             RuleFor(r => r.CustomerTCKN)
                 .NotEmpty().WithMessage("TC Kimlik numarası girilmeli.")
                 .Length(11).WithMessage("TC Kimlik Numarası 11 haneli olmalıdır.")
-                .Matches(@"^(?!00000000000)([1-9][0-9]{9})$")
+                .Matches(@"^[1-9]{1}[0-9]{9}[0,2,4,6,8]{1}$")
                 .WithMessage("Geçersiz TC Kimlik Numarası.");
 
             RuleFor(r => r.VehicleType)

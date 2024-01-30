@@ -10,17 +10,14 @@ namespace FuelStationManagementSystem.Models
     public class Customer
     {
         [Key]
-        [MinLength(11)]
         [MaxLength(11)]
         public string TCKN { get; set; }
 
-        [Required]
         [MaxLength(100)]
-        public string NameSurname { get; set; }
-
-        [Required]
+        public string? NameSurname { get; set; }
+        
         [MaxLength(200)]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         public CustomerStatus Status { get; set; }
     }
