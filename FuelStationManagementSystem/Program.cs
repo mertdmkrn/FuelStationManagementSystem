@@ -2,6 +2,8 @@ using FuelStationManagementSystem.Middleware;
 using FuelStationManagementSystem.Repository;
 using FuelStationManagementSystem.Repository.Abstract;
 using FuelStationManagementSystem.Repository.Concrete;
+using FuelStationManagementSystem.Service.Abstract;
+using FuelStationManagementSystem.Service.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -38,11 +40,13 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddDbContext<FuelStationDbContext>(options =>
 {
-    options.UseSqlServer("Data Source=localhost;Initial Catalog=FuelStationManagementSystemDB;Integrated Security=True;");
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:SqlServer"]);
 });
 
 builder.Services.AddTransient<LoggingMiddleware>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IBalanceInquiryService, BalanceInquiryService>();
+
 
 var app = builder.Build();
 

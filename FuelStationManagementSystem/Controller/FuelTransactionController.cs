@@ -1,8 +1,8 @@
-using FluentValidation;
-using FuelStationManagementSystem.Helpers;
+
 using FuelStationManagementSystem.Model;
 using FuelStationManagementSystem.Models;
 using FuelStationManagementSystem.Repository.Abstract;
+using FuelStationManagementSystem.Service.Abstract;
 using FuelStationManagementSystem.Validators;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,13 +15,15 @@ namespace FuelStationManagementSystem.Controller
         private readonly IRepository<Vehicle> _vehicleRepository;
         private readonly IRepository<Balance> _balanceRepository;
         private readonly IRepository<FuelTransaction> _fuelTransactionRepository;
+        private readonly IBalanceInquiryService _balanceInquiryService;
 
 
-        public FuelTransactionController(IRepository<Vehicle> vehicleRepository, IRepository<Balance> balanceRepository, IRepository<FuelTransaction> fuelTransactionRepository)
+        public FuelTransactionController(IRepository<Vehicle> vehicleRepository, IRepository<Balance> balanceRepository, IRepository<FuelTransaction> fuelTransactionRepository, IBalanceInquiryService balanceInquiryService)
         {
             _vehicleRepository = vehicleRepository;
             _balanceRepository = balanceRepository;
             _fuelTransactionRepository = fuelTransactionRepository;
+            _balanceInquiryService = balanceInquiryService;
         }
 
         /// <summary>
@@ -94,33 +96,13 @@ namespace FuelStationManagementSystem.Controller
                 return NotFound(response);
             }
 
-            var balances = await _balanceRepository.GetByConditionsAsync(x => x.CustomerTCKN.Equals(vehicle.CustomerTCKN) && x.Amount > 0);
+            bool isEnoughBalance = await _balanceInquiryService.CheckBalance(vehicle.CustomerTCKN, fuelTransaction.Amount);
 
-            var totalBalance = balances.Sum(x => x.Amount);
-
-            if (totalBalance < fuelTransaction.Amount)
+            if (!isEnoughBalance)
             {
                 response.HasError = true;
-                response.Message = $"Bakiye yetersiz. Toplam Bakiye : {totalBalance.ToString()}";
+                response.Message = $"Bakiye yetersiz.";
                 return Ok(response);
-            }
-
-            var tempBalance = fuelTransaction.Amount;
-
-            foreach (var balance in balances.OrderBy(x => x.Type))
-            {
-                tempBalance -= balance.Amount;
-                
-                if(tempBalance <= 0)
-                {
-                    balance.Amount -= fuelTransaction.Amount;
-                    await _balanceRepository.UpdateAsync(balance);
-                    break;
-                }
-                else
-                {
-                    await _balanceRepository.DeleteAsync(balance);
-                }
             }
 
             await _fuelTransactionRepository.AddAsync(fuelTransaction);
